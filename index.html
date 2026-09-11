@@ -1,0 +1,810 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<meta name="theme-color" content="#0b0d12">
+<link rel="manifest" href="manifest.webmanifest">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Handle Extractor">
+
+<title>YouTube Handle Extractor</title>
+
+<style>
+    :root {
+        --bg: #0b0d12;
+        --card: #131720;
+        --card2: #1a1f2b;
+        --text: #f5f7fb;
+        --muted: #9da6b7;
+        --border: #2a3140;
+        --accent: #4f8cff;
+        --accent2: #2f6fe8;
+        --danger: #ff5f5f;
+        --success: #35c98b;
+        --input: #0f131b;
+    }
+
+    * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    html {
+        min-height: 100%;
+        background: var(--bg);
+    }
+
+    body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+            radial-gradient(
+                circle at top,
+                #18233b 0,
+                var(--bg) 45%
+            );
+        color: var(--text);
+        font-family:
+            -apple-system,
+            BlinkMacSystemFont,
+            "Segoe UI",
+            Roboto,
+            Helvetica,
+            Arial,
+            sans-serif;
+        padding:
+            env(safe-area-inset-top)
+            16px
+            env(safe-area-inset-bottom)
+            16px;
+    }
+
+    .app {
+        width: 100%;
+        max-width: 850px;
+        margin: 0 auto;
+        padding: 18px 0 30px;
+    }
+
+    .header {
+        padding: 10px 4px 22px;
+    }
+
+    .logo {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: linear-gradient(135deg, var(--accent), #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        margin-bottom: 14px;
+        box-shadow: 0 10px 30px rgba(79,140,255,.25);
+    }
+
+    h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: -0.7px;
+    }
+
+    .subtitle {
+        margin-top: 7px;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .card {
+        background: rgba(19, 23, 32, .92);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 16px;
+        margin-bottom: 14px;
+        box-shadow: 0 15px 40px rgba(0,0,0,.18);
+    }
+
+    label {
+        display: block;
+        font-size: 13px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #dce2ed;
+    }
+
+    input,
+    textarea {
+        width: 100%;
+        border: 1px solid var(--border);
+        background: var(--input);
+        color: var(--text);
+        border-radius: 14px;
+        outline: none;
+        font: inherit;
+    }
+
+    input {
+        height: 48px;
+        padding: 0 14px;
+    }
+
+    textarea {
+        min-height: 230px;
+        resize: vertical;
+        padding: 14px;
+        line-height: 1.5;
+    }
+
+    input:focus,
+    textarea:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(79,140,255,.12);
+    }
+
+    .hint {
+        color: var(--muted);
+        font-size: 12px;
+        margin-top: 8px;
+        line-height: 1.45;
+    }
+
+    .buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 12px;
+    }
+
+    button {
+        min-height: 48px;
+        border: 0;
+        border-radius: 14px;
+        padding: 12px 14px;
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+        color: white;
+        background: var(--card2);
+        border: 1px solid var(--border);
+        transition: transform .12s ease, opacity .12s ease;
+    }
+
+    button:active {
+        transform: scale(.97);
+    }
+
+    button.primary {
+        background: linear-gradient(
+            135deg,
+            var(--accent),
+            var(--accent2)
+        );
+        border: 0;
+    }
+
+    button.success {
+        background: rgba(53,201,139,.13);
+        border-color: rgba(53,201,139,.35);
+        color: #6ee7b7;
+    }
+
+    button.danger {
+        color: #ff8585;
+        background: rgba(255,95,95,.10);
+        border-color: rgba(255,95,95,.25);
+    }
+
+    .stats {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+
+    .count {
+        font-size: 25px;
+        font-weight: 800;
+    }
+
+    .count-label {
+        color: var(--muted);
+        font-size: 12px;
+    }
+
+    .result-box {
+        background: var(--input);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    #results {
+        width: 100%;
+        min-height: 300px;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        resize: vertical;
+    }
+
+    .result-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+        padding: 10px;
+        border-top: 1px solid var(--border);
+    }
+
+    .result-actions button {
+        min-height: 43px;
+        font-size: 13px;
+        padding: 8px;
+    }
+
+    .status {
+        color: var(--muted);
+        font-size: 12px;
+        text-align: center;
+        padding: 8px 0 0;
+        min-height: 26px;
+    }
+
+    .footer {
+        text-align: center;
+        color: #687286;
+        font-size: 11px;
+        padding: 12px 5px;
+        line-height: 1.5;
+    }
+
+    @media (min-width: 650px) {
+        body {
+            padding-left: 25px;
+            padding-right: 25px;
+        }
+
+        .app {
+            padding-top: 35px;
+        }
+
+        .buttons {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        textarea {
+            min-height: 280px;
+        }
+    }
+
+    @media (max-width: 390px) {
+        h1 {
+            font-size: 25px;
+        }
+
+        .buttons {
+            grid-template-columns: 1fr;
+        }
+
+        .result-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+    <div class="header">
+        <div class="logo">＠</div>
+
+        <h1>YouTube Handle Extractor</h1>
+
+        <div class="subtitle">
+            Paste copied YouTube comments and instantly extract unique
+            @handles.
+        </div>
+    </div>
+
+    <div class="card">
+
+        <label for="videoUrl">
+            YouTube video URL — optional
+        </label>
+
+        <input
+            id="videoUrl"
+            type="url"
+            inputmode="url"
+            placeholder="https://youtube.com/shorts/..."
+            autocomplete="off"
+        >
+
+        <div class="hint">
+            This is only saved as a reference. The app does not automatically
+            scrape YouTube.
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <label for="comments">
+            Paste comments
+        </label>
+
+        <textarea
+            id="comments"
+            placeholder="Paste YouTube comments here...
+
+Example:
+
+@john123 this is amazing
+@Mary_Official great video
+Check out @john123
+@crypto_trader nice one
+..."
+            spellcheck="false"
+        ></textarea>
+
+        <div class="buttons">
+
+            <button
+                class="primary"
+                onclick="extractHandles()">
+                Extract @handles
+            </button>
+
+            <button
+                onclick="cleanLines()">
+                Clean lines
+            </button>
+
+            <button
+                class="success"
+                onclick="pasteFromClipboard()">
+                Paste
+            </button>
+
+            <button
+                class="danger"
+                onclick="clearAll()">
+                Clear
+            </button>
+
+        </div>
+
+        <div id="status" class="status">
+            Ready
+        </div>
+
+    </div>
+
+    <div class="card">
+
+        <div class="stats">
+
+            <div>
+                <div class="count" id="count">0</div>
+                <div class="count-label">
+                    unique results
+                </div>
+            </div>
+
+            <button
+                onclick="copyResults()">
+                Copy all
+            </button>
+
+        </div>
+
+        <div class="result-box">
+
+            <textarea
+                id="results"
+                readonly
+                placeholder="@handles will appear here..."
+                spellcheck="false"
+            ></textarea>
+
+            <div class="result-actions">
+
+                <button onclick="copyResults()">
+                    📋 Copy
+                </button>
+
+                <button onclick="downloadTXT()">
+                    📄 TXT
+                </button>
+
+                <button onclick="downloadCSV()">
+                    📊 CSV
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="footer">
+        Runs locally in your browser. Your pasted comments are processed
+        locally by this page.
+    </div>
+
+</div>
+
+
+<script>
+
+const HANDLE_RE =
+    /(?<![\w.-])@[A-Za-z0-9._-]{2,30}\b/g;
+
+
+/* -----------------------------
+   Utility
+----------------------------- */
+
+function setStatus(message) {
+    document.getElementById("status").textContent = message;
+}
+
+
+function getComments() {
+    return document.getElementById("comments").value;
+}
+
+
+function setResults(rows) {
+
+    const resultBox =
+        document.getElementById("results");
+
+    resultBox.value = rows.join("\n");
+
+    document.getElementById("count").textContent =
+        rows.length.toLocaleString();
+
+    setStatus(
+        rows.length === 1
+            ? "1 unique result"
+            : `${rows.length.toLocaleString()} unique results`
+    );
+}
+
+
+/* -----------------------------
+   Extract @handles
+----------------------------- */
+
+function extractHandles() {
+
+    const text = getComments();
+
+    if (!text.trim()) {
+
+        setStatus("Paste some comments first.");
+
+        document.getElementById("comments").focus();
+
+        return;
+    }
+
+    const matches =
+        text.match(HANDLE_RE) || [];
+
+    const seen = new Set();
+    const results = [];
+
+    for (const handle of matches) {
+
+        const key =
+            handle.toLowerCase();
+
+        if (!seen.has(key)) {
+
+            seen.add(key);
+
+            results.push(handle);
+        }
+    }
+
+    setResults(results);
+}
+
+
+/* -----------------------------
+   Clean lines
+----------------------------- */
+
+function cleanLines() {
+
+    const text = getComments();
+
+    if (!text.trim()) {
+
+        setStatus("Paste some text first.");
+
+        return;
+    }
+
+    const seen = new Set();
+    const results = [];
+
+    for (const rawLine of text.split(/\r?\n/)) {
+
+        const line =
+            rawLine.trim();
+
+        if (!line) {
+            continue;
+        }
+
+        const key =
+            line.toLowerCase();
+
+        if (!seen.has(key)) {
+
+            seen.add(key);
+
+            results.push(line);
+        }
+    }
+
+    setResults(results);
+}
+
+
+/* -----------------------------
+   Copy
+----------------------------- */
+
+async function copyResults() {
+
+    const text =
+        document.getElementById("results").value.trim();
+
+    if (!text) {
+
+        setStatus("Nothing to copy.");
+
+        return;
+    }
+
+    try {
+
+        await navigator.clipboard.writeText(text);
+
+        setStatus("Copied to clipboard.");
+
+    } catch (error) {
+
+        const box =
+            document.getElementById("results");
+
+        box.focus();
+
+        box.select();
+
+        document.execCommand("copy");
+
+        setStatus("Copied to clipboard.");
+
+    }
+}
+
+
+/* -----------------------------
+   Paste
+----------------------------- */
+
+async function pasteFromClipboard() {
+
+    try {
+
+        const text =
+            await navigator.clipboard.readText();
+
+        if (!text) {
+
+            setStatus("Clipboard is empty.");
+
+            return;
+        }
+
+        document.getElementById("comments").value =
+            text;
+
+        setStatus("Pasted from clipboard.");
+
+    } catch (error) {
+
+        setStatus(
+            "Clipboard permission was blocked. Tap inside the box and paste manually."
+        );
+
+        document.getElementById("comments").focus();
+    }
+}
+
+
+/* -----------------------------
+   Clear
+----------------------------- */
+
+function clearAll() {
+
+    document.getElementById("comments").value = "";
+
+    document.getElementById("results").value = "";
+
+    document.getElementById("videoUrl").value = "";
+
+    document.getElementById("count").textContent = "0";
+
+    setStatus("Cleared.");
+
+}
+
+
+/* -----------------------------
+   Download helper
+----------------------------- */
+
+function downloadFile(filename, content, type) {
+
+    const blob =
+        new Blob(
+            [content],
+            { type: type }
+        );
+
+    const url =
+        URL.createObjectURL(blob);
+
+    const link =
+        document.createElement("a");
+
+    link.href = url;
+
+    link.download = filename;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    URL.revokeObjectURL(url);
+}
+
+
+/* -----------------------------
+   TXT
+----------------------------- */
+
+function downloadTXT() {
+
+    const text =
+        document.getElementById("results").value.trim();
+
+    if (!text) {
+
+        setStatus("Nothing to download.");
+
+        return;
+    }
+
+    downloadFile(
+        "youtube-handles.txt",
+        text + "\n",
+        "text/plain;charset=utf-8"
+    );
+
+    setStatus("TXT downloaded.");
+}
+
+
+/* -----------------------------
+   CSV
+----------------------------- */
+
+function csvEscape(value) {
+
+    return '"' +
+        value.replace(/"/g, '""') +
+        '"';
+}
+
+
+function downloadCSV() {
+
+    const text =
+        document.getElementById("results").value.trim();
+
+    if (!text) {
+
+        setStatus("Nothing to download.");
+
+        return;
+    }
+
+    const rows =
+        text
+            .split(/\r?\n/)
+            .filter(Boolean);
+
+    let csv =
+        "handle\n";
+
+    for (const row of rows) {
+
+        csv +=
+            csvEscape(row) +
+            "\n";
+    }
+
+    downloadFile(
+        "youtube-handles.csv",
+        csv,
+        "text/csv;charset=utf-8"
+    );
+
+    setStatus("CSV downloaded.");
+}
+
+
+/* -----------------------------
+   Keyboard shortcut
+----------------------------- */
+
+document
+    .getElementById("comments")
+    .addEventListener("keydown", function(event) {
+
+        if (
+            (event.ctrlKey || event.metaKey) &&
+            event.key === "Enter"
+        ) {
+
+            extractHandles();
+
+        }
+
+    });
+
+
+/* -----------------------------
+   Service worker
+----------------------------- */
+
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener(
+        "load",
+        () => {
+
+            navigator.serviceWorker
+                .register("./sw.js")
+                .catch(() => {
+                    // App still works without service worker.
+                });
+
+        }
+    );
+
+}
+
+</script>
+
+</body>
+</html>
