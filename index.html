@@ -1,808 +1,1346 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#111111">
+  <title>YouTube Comment Handle Extractor</title>
 
-<meta name="viewport"
-      content="width=device-width, initial-scale=1, viewport-fit=cover">
-
-<meta name="theme-color" content="#0b0d12">
-<link rel="manifest" href="manifest.webmanifest">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Handle Extractor">
-
-<title>YouTube Handle Extractor</title>
-
-<style>
-    :root {
-        --bg: #0b0d12;
-        --card: #131720;
-        --card2: #1a1f2b;
-        --text: #f5f7fb;
-        --muted: #9da6b7;
-        --border: #2a3140;
-        --accent: #4f8cff;
-        --accent2: #2f6fe8;
-        --danger: #ff5f5f;
-        --success: #35c98b;
-        --input: #0f131b;
-    }
-
+  <style>
     * {
-        box-sizing: border-box;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    html {
-        min-height: 100%;
-        background: var(--bg);
+      box-sizing: border-box;
     }
 
     body {
-        margin: 0;
-        min-height: 100vh;
-        background:
-            radial-gradient(
-                circle at top,
-                #18233b 0,
-                var(--bg) 45%
-            );
-        color: var(--text);
-        font-family:
-            -apple-system,
-            BlinkMacSystemFont,
-            "Segoe UI",
-            Roboto,
-            Helvetica,
-            Arial,
-            sans-serif;
-        padding:
-            env(safe-area-inset-top)
-            16px
-            env(safe-area-inset-bottom)
-            16px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #f5f5f5;
+      color: #111;
     }
 
-    .app {
-        width: 100%;
-        max-width: 850px;
-        margin: 0 auto;
-        padding: 18px 0 30px;
-    }
-
-    .header {
-        padding: 10px 4px 22px;
-    }
-
-    .logo {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
-        background: linear-gradient(135deg, var(--accent), #8b5cf6);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 25px;
-        margin-bottom: 14px;
-        box-shadow: 0 10px 30px rgba(79,140,255,.25);
-    }
-
-    h1 {
-        margin: 0;
-        font-size: 28px;
-        letter-spacing: -0.7px;
-    }
-
-    .subtitle {
-        margin-top: 7px;
-        color: var(--muted);
-        font-size: 14px;
-        line-height: 1.5;
+    .container {
+      width: 100%;
+      max-width: 850px;
+      margin: 0 auto;
+      padding: 20px 14px 50px;
     }
 
     .card {
-        background: rgba(19, 23, 32, .92);
-        border: 1px solid var(--border);
-        border-radius: 20px;
-        padding: 16px;
-        margin-bottom: 14px;
-        box-shadow: 0 15px 40px rgba(0,0,0,.18);
+      background: #fff;
+      border-radius: 18px;
+      padding: 24px;
+      box-shadow: 0 5px 25px rgba(0,0,0,0.08);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 29px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 15px;
+      line-height: 1.5;
+      margin-bottom: 22px;
     }
 
     label {
-        display: block;
-        font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: #dce2ed;
-    }
-
-    input,
-    textarea {
-        width: 100%;
-        border: 1px solid var(--border);
-        background: var(--input);
-        color: var(--text);
-        border-radius: 14px;
-        outline: none;
-        font: inherit;
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
     }
 
     input {
-        height: 48px;
-        padding: 0 14px;
+      width: 100%;
+      padding: 15px;
+      border: 1px solid #ccc;
+      border-radius: 11px;
+      font-size: 16px;
+      outline: none;
+      background: #fff;
     }
 
-    textarea {
-        min-height: 230px;
-        resize: vertical;
-        padding: 14px;
-        line-height: 1.5;
-    }
-
-    input:focus,
-    textarea:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(79,140,255,.12);
-    }
-
-    .hint {
-        color: var(--muted);
-        font-size: 12px;
-        margin-top: 8px;
-        line-height: 1.45;
+    input:focus {
+      border-color: #111;
     }
 
     .buttons {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
     }
 
     button {
-        min-height: 48px;
-        border: 0;
-        border-radius: 14px;
-        padding: 12px 14px;
-        font: inherit;
-        font-weight: 700;
-        cursor: pointer;
-        color: white;
-        background: var(--card2);
-        border: 1px solid var(--border);
-        transition: transform .12s ease, opacity .12s ease;
+      border: 0;
+      border-radius: 11px;
+      padding: 13px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #111;
+      color: #fff;
+      min-height: 46px;
     }
 
-    button:active {
-        transform: scale(.97);
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
 
-    button.primary {
-        background: linear-gradient(
-            135deg,
-            var(--accent),
-            var(--accent2)
-        );
-        border: 0;
+    .secondary {
+      background: #e9e9e9;
+      color: #111;
     }
 
-    button.success {
-        background: rgba(53,201,139,.13);
-        border-color: rgba(53,201,139,.35);
-        color: #6ee7b7;
-    }
-
-    button.danger {
-        color: #ff8585;
-        background: rgba(255,95,95,.10);
-        border-color: rgba(255,95,95,.25);
-    }
-
-    .stats {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 12px;
-    }
-
-    .count {
-        font-size: 25px;
-        font-weight: 800;
-    }
-
-    .count-label {
-        color: var(--muted);
-        font-size: 12px;
-    }
-
-    .result-box {
-        background: var(--input);
-        border: 1px solid var(--border);
-        border-radius: 14px;
-        overflow: hidden;
-    }
-
-    #results {
-        width: 100%;
-        min-height: 300px;
-        border: 0;
-        border-radius: 0;
-        background: transparent;
-        resize: vertical;
-    }
-
-    .result-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr 1fr;
-        gap: 8px;
-        padding: 10px;
-        border-top: 1px solid var(--border);
-    }
-
-    .result-actions button {
-        min-height: 43px;
-        font-size: 13px;
-        padding: 8px;
+    .danger {
+      background: #ffe5e5;
+      color: #b00020;
     }
 
     .status {
-        color: var(--muted);
-        font-size: 12px;
-        text-align: center;
-        padding: 8px 0 0;
-        min-height: 26px;
+      display: none;
+      margin-top: 18px;
+      padding: 13px 15px;
+      border-radius: 11px;
+      background: #f0f0f0;
+      color: #111;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+
+    .status.error {
+      background: #ffe5e5;
+      color: #b00020;
+    }
+
+    .status.success {
+      background: #e7f7e7;
+      color: #126b12;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .stat {
+      background: #f3f3f3;
+      border-radius: 10px;
+      padding: 10px 13px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .results {
+      margin-top: 18px;
+    }
+
+    .handle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 13px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .handle-name {
+      font-size: 16px;
+      font-weight: 600;
+      word-break: break-all;
+    }
+
+    .copy-one {
+      flex-shrink: 0;
+      min-height: 38px;
+      padding: 9px 13px;
+      font-size: 13px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .empty {
+      text-align: center;
+      color: #777;
+      padding: 35px 10px;
     }
 
     .footer {
-        text-align: center;
-        color: #687286;
-        font-size: 11px;
-        padding: 12px 5px;
-        line-height: 1.5;
+      text-align: center;
+      color: #888;
+      font-size: 12px;
+      margin-top: 20px;
     }
 
-    @media (min-width: 650px) {
-        body {
-            padding-left: 25px;
-            padding-right: 25px;
-        }
+    @media (max-width: 600px) {
+      .container {
+        padding: 12px 10px 40px;
+      }
 
-        .app {
-            padding-top: 35px;
-        }
+      .card {
+        padding: 18px 15px;
+        border-radius: 15px;
+      }
 
-        .buttons {
-            grid-template-columns: repeat(4, 1fr);
-        }
+      h1 {
+        font-size: 24px;
+      }
 
-        textarea {
-            min-height: 280px;
-        }
+      .buttons {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .buttons button {
+        width: 100%;
+      }
+
+      .handle {
+        align-items: flex-start;
+      }
+
+      .copy-one {
+        padding: 8px 10px;
+      }
     }
-
-    @media (max-width: 390px) {
-        h1 {
-            font-size: 25px;
-        }
-
-        .buttons {
-            grid-template-columns: 1fr;
-        }
-
-        .result-actions {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
+  </style>
 </head>
 
 <body>
 
-<div class="app">
+<div class="container">
 
-    <div class="header">
-        <div class="logo">＠</div>
+  <div class="card">
 
-        <h1>YouTube Handle Extractor</h1>
+    <h1>YouTube Comment Handle Extractor</h1>
 
-        <div class="subtitle">
-            Paste copied YouTube comments and instantly extract unique
-            @handles.
-        </div>
+    <div class="subtitle">
+      Paste a YouTube video or Shorts URL and extract unique commenter
+      handles automatically.
     </div>
 
-    <div class="card">
+    <label for="youtubeUrl">YouTube URL</label>
 
-        <label for="videoUrl">
-            YouTube video URL — optional
-        </label>
+    <input
+      id="youtubeUrl"
+      type="url"
+      autocomplete="off"
+      placeholder="https://www.youtube.com/watch?v=..."
+    >
 
-        <input
-            id="videoUrl"
-            type="url"
-            inputmode="url"
-            placeholder="https://youtube.com/shorts/..."
-            autocomplete="off"
-        >
+    <div class="buttons">
 
-        <div class="hint">
-            This is only saved as a reference. The app does not automatically
-            scrape YouTube.
-        </div>
+      <button
+        id="extractBtn"
+        onclick="extractHandles()">
+        Extract Handles
+      </button>
 
-    </div>
-
-    <div class="card">
-
-        <label for="comments">
-            Paste comments
-        </label>
-
-        <textarea
-            id="comments"
-            placeholder="Paste YouTube comments here...
-
-Example:
-
-@john123 this is amazing
-@Mary_Official great video
-Check out @john123
-@crypto_trader nice one
-..."
-            spellcheck="false"
-        ></textarea>
-
-        <div class="buttons">
-
-            <button
-                class="primary"
-                onclick="extractHandles()">
-                Extract @handles
-            </button>
-
-            <button
-                onclick="cleanLines()">
-                Clean lines
-            </button>
-
-            <button
-                class="success"
-                onclick="pasteFromClipboard()">
-                Paste
-            </button>
-
-            <button
-                class="danger"
-                onclick="clearAll()">
-                Clear
-            </button>
-
-        </div>
-
-        <div id="status" class="status">
-            Ready
-        </div>
+      <button
+        class="secondary"
+        onclick="clearResults()">
+        Clear
+      </button>
 
     </div>
 
-    <div class="card">
+    <div id="status" class="status"></div>
 
-        <div class="stats">
+    <div id="stats" class="stats hidden">
 
-            <div>
-                <div class="count" id="count">0</div>
-                <div class="count-label">
-                    unique results
-                </div>
-            </div>
+      <div class="stat">
+        Handles: <span id="handleCount">0</span>
+      </div>
 
-            <button
-                onclick="copyResults()">
-                Copy all
-            </button>
-
-        </div>
-
-        <div class="result-box">
-
-            <textarea
-                id="results"
-                readonly
-                placeholder="@handles will appear here..."
-                spellcheck="false"
-            ></textarea>
-
-            <div class="result-actions">
-
-                <button onclick="copyResults()">
-                    📋 Copy
-                </button>
-
-                <button onclick="downloadTXT()">
-                    📄 TXT
-                </button>
-
-                <button onclick="downloadCSV()">
-                    📊 CSV
-                </button>
-
-            </div>
-
-        </div>
+      <div class="stat">
+        Comments: <span id="commentCount">0</span>
+      </div>
 
     </div>
 
-    <div class="footer">
-        Runs locally in your browser. Your pasted comments are processed
-        locally by this page.
+    <div id="controls" class="buttons hidden">
+
+      <button onclick="copyAll()">
+        Copy All
+      </button>
+
+      <button
+        class="secondary"
+        onclick="downloadTXT()">
+        TXT
+      </button>
+
+      <button
+        class="secondary"
+        onclick="downloadCSV()">
+        CSV
+      </button>
+
+      <button
+        id="loadMoreBtn"
+        class="secondary"
+        onclick="loadMore()">
+        Load More
+      </button>
+
     </div>
+
+    <div id="results" class="results"></div>
+
+  </div>
+
+  <div class="footer">
+    YouTube Comment Handle Extractor
+  </div>
 
 </div>
 
 
 <script>
 
-const HANDLE_RE =
-    /(?<![\w.-])@[A-Za-z0-9._-]{2,30}\b/g;
+/* ============================================================
+   YOUR CLOUDFLARE WORKER
+   ============================================================ */
+
+const WORKER_URL =
+  "https://lucky-breeze-8bef.zumoblockboy.workers.dev/";
 
 
-/* -----------------------------
-   Utility
------------------------------ */
+/* ============================================================
+   APPLICATION STATE
+   ============================================================ */
 
-function setStatus(message) {
-    document.getElementById("status").textContent = message;
+let handles = new Map();
+
+let nextCursor = null;
+
+let currentYouTubeUrl = null;
+
+let loading = false;
+
+let totalCommentsProcessed = 0;
+
+
+/* ============================================================
+   STATUS MESSAGE
+   ============================================================ */
+
+function showStatus(message, type = "normal") {
+
+  const status =
+    document.getElementById("status");
+
+  status.style.display = "block";
+
+  status.textContent = message;
+
+  status.className = "status";
+
+  if (type === "error") {
+    status.classList.add("error");
+  }
+
+  if (type === "success") {
+    status.classList.add("success");
+  }
 }
 
 
-function getComments() {
-    return document.getElementById("comments").value;
+/* ============================================================
+   HIDE STATUS
+   ============================================================ */
+
+function hideStatus() {
+
+  const status =
+    document.getElementById("status");
+
+  status.style.display = "none";
+
 }
 
 
-function setResults(rows) {
+/* ============================================================
+   YOUTUBE URL VALIDATION
+   ============================================================ */
 
-    const resultBox =
-        document.getElementById("results");
+function isValidYouTubeUrl(value) {
 
-    resultBox.value = rows.join("\n");
+  try {
 
-    document.getElementById("count").textContent =
-        rows.length.toLocaleString();
+    const url = new URL(value);
 
-    setStatus(
-        rows.length === 1
-            ? "1 unique result"
-            : `${rows.length.toLocaleString()} unique results`
+    const allowedHosts = [
+      "youtube.com",
+      "www.youtube.com",
+      "m.youtube.com",
+      "youtu.be",
+      "www.youtu.be"
+    ];
+
+    return allowedHosts.includes(
+      url.hostname.toLowerCase()
     );
+
+  } catch {
+
+    return false;
+
+  }
+
 }
 
 
-/* -----------------------------
-   Extract @handles
------------------------------ */
+/* ============================================================
+   EXTRACT HANDLES FROM A COMMENT
+   ============================================================ */
 
-function extractHandles() {
+function extractPossibleHandles(comment) {
 
-    const text = getComments();
+  const found = [];
 
-    if (!text.trim()) {
+  if (!comment) {
+    return found;
+  }
 
-        setStatus("Paste some comments first.");
 
-        document.getElementById("comments").focus();
+  /*
+   Possible author fields returned by APIs.
+  */
 
-        return;
+  const possibleNames = [
+
+    comment.author,
+
+    comment.authorHandle,
+
+    comment.authorUsername,
+
+    comment.handle,
+
+    comment.username,
+
+    comment.authorName
+
+  ];
+
+
+  for (const value of possibleNames) {
+
+    if (!value) {
+      continue;
     }
-
-    const matches =
-        text.match(HANDLE_RE) || [];
-
-    const seen = new Set();
-    const results = [];
-
-    for (const handle of matches) {
-
-        const key =
-            handle.toLowerCase();
-
-        if (!seen.has(key)) {
-
-            seen.add(key);
-
-            results.push(handle);
-        }
-    }
-
-    setResults(results);
-}
-
-
-/* -----------------------------
-   Clean lines
------------------------------ */
-
-function cleanLines() {
-
-    const text = getComments();
-
-    if (!text.trim()) {
-
-        setStatus("Paste some text first.");
-
-        return;
-    }
-
-    const seen = new Set();
-    const results = [];
-
-    for (const rawLine of text.split(/\r?\n/)) {
-
-        const line =
-            rawLine.trim();
-
-        if (!line) {
-            continue;
-        }
-
-        const key =
-            line.toLowerCase();
-
-        if (!seen.has(key)) {
-
-            seen.add(key);
-
-            results.push(line);
-        }
-    }
-
-    setResults(results);
-}
-
-
-/* -----------------------------
-   Copy
------------------------------ */
-
-async function copyResults() {
 
     const text =
-        document.getElementById("results").value.trim();
+      String(value).trim();
 
-    if (!text) {
 
-        setStatus("Nothing to copy.");
+    /*
+     Direct @username
+    */
 
-        return;
-    }
+    if (
+      /^@[A-Za-z0-9._-]+$/.test(text)
+    ) {
 
-    try {
+      found.push(text);
 
-        await navigator.clipboard.writeText(text);
-
-        setStatus("Copied to clipboard.");
-
-    } catch (error) {
-
-        const box =
-            document.getElementById("results");
-
-        box.focus();
-
-        box.select();
-
-        document.execCommand("copy");
-
-        setStatus("Copied to clipboard.");
+      continue;
 
     }
+
+
+    /*
+     YouTube channel URL
+    */
+
+    const channelMatch =
+      text.match(
+        /youtube\.com\/@([A-Za-z0-9._-]+)/i
+      );
+
+    if (channelMatch) {
+
+      found.push(
+        "@" + channelMatch[1]
+      );
+
+    }
+
+  }
+
+
+  /*
+   Extract @mentions from comment text.
+  */
+
+  if (comment.text) {
+
+    const mentions =
+      String(comment.text).match(
+        /@[A-Za-z0-9._-]+/g
+      );
+
+    if (mentions) {
+
+      found.push(...mentions);
+
+    }
+
+  }
+
+
+  return found;
+
 }
 
 
-/* -----------------------------
-   Paste
------------------------------ */
+/* ============================================================
+   ADD UNIQUE HANDLE
+   ============================================================ */
 
-async function pasteFromClipboard() {
+function addHandle(handle) {
+
+  if (!handle) {
+    return;
+  }
+
+  handle =
+    String(handle).trim();
+
+
+  if (!handle.startsWith("@")) {
+
+    handle =
+      "@" + handle;
+
+  }
+
+
+  /*
+   Basic username validation.
+  */
+
+  if (
+    !/^@[A-Za-z0-9._-]+$/.test(handle)
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+   Case-insensitive uniqueness.
+  */
+
+  const key =
+    handle.toLowerCase();
+
+
+  if (!handles.has(key)) {
+
+    handles.set(
+      key,
+      handle
+    );
+
+  }
+
+}
+
+
+/* ============================================================
+   PROCESS API RESPONSE
+   ============================================================ */
+
+function processResponse(data) {
+
+  let comments = [];
+
+
+  /*
+   Captapi format:
+   data.comments
+  */
+
+  if (
+    data &&
+    data.data &&
+    Array.isArray(data.data.comments)
+  ) {
+
+    comments =
+      data.data.comments;
+
+  }
+
+
+  /*
+   Fallback format:
+   comments
+  */
+
+  else if (
+    data &&
+    Array.isArray(data.comments)
+  ) {
+
+    comments =
+      data.comments;
+
+  }
+
+
+  /*
+   Process every comment.
+  */
+
+  for (const comment of comments) {
+
+    const found =
+      extractPossibleHandles(comment);
+
+    for (const handle of found) {
+
+      addHandle(handle);
+
+    }
+
+  }
+
+
+  totalCommentsProcessed +=
+    comments.length;
+
+
+  /*
+   Pagination cursor.
+  */
+
+  nextCursor =
+    data?.data?.nextCursor ||
+    data?.nextCursor ||
+    null;
+
+
+  renderResults();
+
+
+  return comments.length;
+
+}
+
+
+/* ============================================================
+   MAIN EXTRACTION
+   ============================================================ */
+
+async function extractHandles() {
+
+  if (loading) {
+    return;
+  }
+
+
+  const input =
+    document.getElementById("youtubeUrl");
+
+
+  const youtubeUrl =
+    input.value.trim();
+
+
+  if (!youtubeUrl) {
+
+    showStatus(
+      "Please paste a YouTube URL.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  if (!isValidYouTubeUrl(youtubeUrl)) {
+
+    showStatus(
+      "Please enter a valid YouTube video or Shorts URL.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  /*
+   Reset previous results.
+  */
+
+  handles.clear();
+
+  nextCursor = null;
+
+  totalCommentsProcessed = 0;
+
+  currentYouTubeUrl =
+    youtubeUrl;
+
+
+  document.getElementById(
+    "results"
+  ).innerHTML = "";
+
+
+  document.getElementById(
+    "stats"
+  ).classList.remove("hidden");
+
+
+  document.getElementById(
+    "controls"
+  ).classList.remove("hidden");
+
+
+  await requestComments();
+
+}
+
+
+/* ============================================================
+   REQUEST COMMENTS FROM WORKER
+   ============================================================ */
+
+async function requestComments() {
+
+  loading = true;
+
+
+  const extractBtn =
+    document.getElementById(
+      "extractBtn"
+    );
+
+
+  const loadMoreBtn =
+    document.getElementById(
+      "loadMoreBtn"
+    );
+
+
+  extractBtn.disabled = true;
+
+  loadMoreBtn.disabled = true;
+
+
+  if (nextCursor) {
+
+    showStatus(
+      "Loading more comments..."
+    );
+
+  } else {
+
+    showStatus(
+      "Fetching YouTube comments..."
+    );
+
+  }
+
+
+  try {
+
+    const params =
+      new URLSearchParams();
+
+
+    params.set(
+      "url",
+      currentYouTubeUrl
+    );
+
+
+    if (nextCursor) {
+
+      params.set(
+        "cursor",
+        nextCursor
+      );
+
+    }
+
+
+    const requestUrl =
+      WORKER_URL +
+      "?" +
+      params.toString();
+
+
+    const response =
+      await fetch(requestUrl, {
+        method: "GET",
+        headers: {
+          "Accept":
+            "application/json"
+        }
+      });
+
+
+    const text =
+      await response.text();
+
+
+    let data;
+
 
     try {
 
-        const text =
-            await navigator.clipboard.readText();
+      data =
+        JSON.parse(text);
 
-        if (!text) {
+    } catch {
 
-            setStatus("Clipboard is empty.");
+      throw new Error(
+        "The Worker did not return JSON. Check that your Cloudflare Worker contains the backend code."
+      );
 
-            return;
+    }
+
+
+    if (!response.ok) {
+
+      const message =
+        data?.error ||
+        data?.message ||
+        `Request failed (${response.status})`;
+
+      throw new Error(message);
+
+    }
+
+
+    const amount =
+      processResponse(data);
+
+
+    if (amount === 0) {
+
+      if (handles.size === 0) {
+
+        showStatus(
+          "No comments were returned for this video."
+        );
+
+      } else {
+
+        showStatus(
+          "No additional comments were returned.",
+          "success"
+        );
+
+      }
+
+    } else {
+
+      showStatus(
+        `${amount} comments processed. ${handles.size} unique handles found.`,
+        "success"
+      );
+
+    }
+
+
+    updateLoadMoreButton();
+
+  } catch (error) {
+
+    console.error(error);
+
+    showStatus(
+      "Error: " +
+      error.message,
+      "error"
+    );
+
+  } finally {
+
+    loading = false;
+
+    extractBtn.disabled = false;
+
+    loadMoreBtn.disabled = false;
+
+  }
+
+}
+
+
+/* ============================================================
+   LOAD MORE COMMENTS
+   ============================================================ */
+
+async function loadMore() {
+
+  if (loading) {
+    return;
+  }
+
+
+  if (!nextCursor) {
+
+    showStatus(
+      "There are no more comments to load."
+    );
+
+    updateLoadMoreButton();
+
+    return;
+
+  }
+
+
+  await requestComments();
+
+}
+
+
+/* ============================================================
+   UPDATE LOAD MORE BUTTON
+   ============================================================ */
+
+function updateLoadMoreButton() {
+
+  const button =
+    document.getElementById(
+      "loadMoreBtn"
+    );
+
+
+  if (!nextCursor) {
+
+    button.textContent =
+      "No More Comments";
+
+    button.disabled = true;
+
+  } else {
+
+    button.textContent =
+      "Load More";
+
+    button.disabled = false;
+
+  }
+
+}
+
+
+/* ============================================================
+   RENDER RESULTS
+   ============================================================ */
+
+function renderResults() {
+
+  const results =
+    document.getElementById(
+      "results"
+    );
+
+
+  const values =
+    Array.from(
+      handles.values()
+    );
+
+
+  document.getElementById(
+    "handleCount"
+  ).textContent =
+    values.length;
+
+
+  document.getElementById(
+    "commentCount"
+  ).textContent =
+    totalCommentsProcessed;
+
+
+  results.innerHTML = "";
+
+
+  if (values.length === 0) {
+
+    results.innerHTML = `
+      <div class="empty">
+        No handles found yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  for (const handle of values) {
+
+    const row =
+      document.createElement(
+        "div"
+      );
+
+    row.className =
+      "handle";
+
+
+    const name =
+      document.createElement(
+        "span"
+      );
+
+    name.className =
+      "handle-name";
+
+    name.textContent =
+      handle;
+
+
+    const copy =
+      document.createElement(
+        "button"
+      );
+
+    copy.className =
+      "secondary copy-one";
+
+    copy.textContent =
+      "Copy";
+
+
+    copy.onclick =
+      async function () {
+
+        try {
+
+          await navigator.clipboard.writeText(
+            handle
+          );
+
+          copy.textContent =
+            "Copied!";
+
+          setTimeout(
+            () => {
+              copy.textContent =
+                "Copy";
+            },
+            1200
+          );
+
+        } catch {
+
+          showStatus(
+            "Could not copy this handle.",
+            "error"
+          );
+
         }
 
-        document.getElementById("comments").value =
-            text;
-
-        setStatus("Pasted from clipboard.");
-
-    } catch (error) {
-
-        setStatus(
-            "Clipboard permission was blocked. Tap inside the box and paste manually."
-        );
-
-        document.getElementById("comments").focus();
-    }
-}
+      };
 
 
-/* -----------------------------
-   Clear
------------------------------ */
+    row.appendChild(name);
 
-function clearAll() {
+    row.appendChild(copy);
 
-    document.getElementById("comments").value = "";
+    results.appendChild(row);
 
-    document.getElementById("results").value = "";
-
-    document.getElementById("videoUrl").value = "";
-
-    document.getElementById("count").textContent = "0";
-
-    setStatus("Cleared.");
+  }
 
 }
 
 
-/* -----------------------------
-   Download helper
------------------------------ */
+/* ============================================================
+   COPY ALL HANDLES
+   ============================================================ */
 
-function downloadFile(filename, content, type) {
+async function copyAll() {
 
-    const blob =
-        new Blob(
-            [content],
-            { type: type }
-        );
+  const values =
+    Array.from(
+      handles.values()
+    );
 
-    const url =
-        URL.createObjectURL(blob);
 
-    const link =
-        document.createElement("a");
+  if (values.length === 0) {
 
-    link.href = url;
+    showStatus(
+      "There are no handles to copy.",
+      "error"
+    );
 
-    link.download = filename;
+    return;
 
-    document.body.appendChild(link);
+  }
 
-    link.click();
 
-    link.remove();
+  try {
 
-    URL.revokeObjectURL(url);
+    await navigator.clipboard.writeText(
+      values.join("\n")
+    );
+
+
+    showStatus(
+      `${values.length} handles copied to clipboard.`,
+      "success"
+    );
+
+  } catch {
+
+    showStatus(
+      "Copy failed. Your browser may have blocked clipboard access.",
+      "error"
+    );
+
+  }
+
 }
 
 
-/* -----------------------------
-   TXT
------------------------------ */
+/* ============================================================
+   DOWNLOAD TXT
+   ============================================================ */
 
 function downloadTXT() {
 
-    const text =
-        document.getElementById("results").value.trim();
-
-    if (!text) {
-
-        setStatus("Nothing to download.");
-
-        return;
-    }
-
-    downloadFile(
-        "youtube-handles.txt",
-        text + "\n",
-        "text/plain;charset=utf-8"
+  const values =
+    Array.from(
+      handles.values()
     );
 
-    setStatus("TXT downloaded.");
+
+  if (values.length === 0) {
+
+    showStatus(
+      "There are no handles to download.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const blob =
+    new Blob(
+      [
+        values.join("\n")
+      ],
+      {
+        type:
+          "text/plain;charset=utf-8"
+      }
+    );
+
+
+  downloadBlob(
+    blob,
+    "youtube-handles.txt"
+  );
+
 }
 
 
-/* -----------------------------
-   CSV
------------------------------ */
-
-function csvEscape(value) {
-
-    return '"' +
-        value.replace(/"/g, '""') +
-        '"';
-}
-
+/* ============================================================
+   DOWNLOAD CSV
+   ============================================================ */
 
 function downloadCSV() {
 
-    const text =
-        document.getElementById("results").value.trim();
-
-    if (!text) {
-
-        setStatus("Nothing to download.");
-
-        return;
-    }
-
-    const rows =
-        text
-            .split(/\r?\n/)
-            .filter(Boolean);
-
-    let csv =
-        "handle\n";
-
-    for (const row of rows) {
-
-        csv +=
-            csvEscape(row) +
-            "\n";
-    }
-
-    downloadFile(
-        "youtube-handles.csv",
-        csv,
-        "text/csv;charset=utf-8"
+  const values =
+    Array.from(
+      handles.values()
     );
 
-    setStatus("CSV downloaded.");
+
+  if (values.length === 0) {
+
+    showStatus(
+      "There are no handles to download.",
+      "error"
+    );
+
+    return;
+
+  }
+
+
+  const rows = [
+    ["Handle"],
+    ...values.map(
+      handle => [handle]
+    )
+  ];
+
+
+  const csv =
+    rows
+      .map(
+        row =>
+          row
+            .map(
+              value =>
+                `"${String(value)
+                  .replace(/"/g, '""')}"`
+            )
+            .join(",")
+      )
+      .join("\n");
+
+
+  const blob =
+    new Blob(
+      [csv],
+      {
+        type:
+          "text/csv;charset=utf-8"
+      }
+    );
+
+
+  downloadBlob(
+    blob,
+    "youtube-handles.csv"
+  );
+
 }
 
 
-/* -----------------------------
-   Keyboard shortcut
------------------------------ */
+/* ============================================================
+   DOWNLOAD FILE
+   ============================================================ */
+
+function downloadBlob(
+  blob,
+  filename
+) {
+
+  const url =
+    URL.createObjectURL(blob);
+
+
+  const a =
+    document.createElement("a");
+
+
+  a.href = url;
+
+  a.download = filename;
+
+
+  document.body.appendChild(a);
+
+  a.click();
+
+  a.remove();
+
+
+  setTimeout(
+    () => {
+      URL.revokeObjectURL(url);
+    },
+    1000
+  );
+
+}
+
+
+/* ============================================================
+   CLEAR EVERYTHING
+   ============================================================ */
+
+function clearResults() {
+
+  handles.clear();
+
+  nextCursor = null;
+
+  currentYouTubeUrl = null;
+
+  totalCommentsProcessed = 0;
+
+
+  document.getElementById(
+    "youtubeUrl"
+  ).value = "";
+
+
+  document.getElementById(
+    "results"
+  ).innerHTML = "";
+
+
+  document.getElementById(
+    "handleCount"
+  ).textContent = "0";
+
+
+  document.getElementById(
+    "commentCount"
+  ).textContent = "0";
+
+
+  document.getElementById(
+    "controls"
+  ).classList.add("hidden");
+
+
+  document.getElementById(
+    "stats"
+  ).classList.add("hidden");
+
+
+  hideStatus();
+
+
+  updateLoadMoreButton();
+
+}
+
+
+/* ============================================================
+   ENTER KEY SUPPORT
+   ============================================================ */
 
 document
-    .getElementById("comments")
-    .addEventListener("keydown", function(event) {
+  .getElementById("youtubeUrl")
+  .addEventListener(
+    "keydown",
+    function(event) {
 
-        if (
-            (event.ctrlKey || event.metaKey) &&
-            event.key === "Enter"
-        ) {
+      if (event.key === "Enter") {
 
-            extractHandles();
+        extractHandles();
 
-        }
+      }
 
-    });
+    }
+  );
 
 
-/* -----------------------------
-   Service worker
------------------------------ */
+/* ============================================================
+   INITIAL BUTTON STATE
+   ============================================================ */
 
-if ("serviceWorker" in navigator) {
-
-    window.addEventListener(
-        "load",
-        () => {
-
-            navigator.serviceWorker
-                .register("./sw.js")
-                .catch(() => {
-                    // App still works without service worker.
-                });
-
-        }
-    );
-
-}
+updateLoadMoreButton();
 
 </script>
 
